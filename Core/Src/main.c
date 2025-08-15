@@ -110,9 +110,9 @@ volatile int32_t isEnabled;
 int main(void)
 {
 	temperatureInCelcius = -1234689.75;
-		humidityValue = 0;
-		isEnabled = 1;
-		isLocked = 1;
+	humidityValue = 0;
+	isEnabled = 1;
+	isLocked = 1;
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */

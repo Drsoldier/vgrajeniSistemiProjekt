@@ -70,18 +70,16 @@ void Screen1View::updateTemperature(){
 	if(!isEnabled){
 		return;
 	}
-	int zgornjiDel = floor(temperatureInCelcius);
+	int prefix = 1;
 	if(temperatureInCelcius < 0){
-		temperatureInCelcius *= -1;
-	}
-	float spodnjiDelFloat = temperatureInCelcius - zgornjiDel;
-	spodnjiDelFloat = spodnjiDelFloat * 100;
-	int decimal = floor(spodnjiDelFloat);
-	if(temperatureInCelcius < 10 && temperatureInCelcius > 0){
-		Unicode::snprintf(temperatureBuffer, TEMPERATURE_SIZE, "%d.%d", zgornjiDel, decimal);
+		prefix = -1;
 	}else{
-		Unicode::snprintf(temperatureBuffer, TEMPERATURE_SIZE, "%d.%d", zgornjiDel, decimal);
+		prefix = 1;
 	}
+	int zgornjiDel = floor(temperatureInCelcius*prefix);
+	int decimal = floor((prefix*temperatureInCelcius*100.0 - zgornjiDel*100.0));
+	Unicode::snprintf(temperatureBuffer, TEMPERATURE_SIZE, "%d.%d", zgornjiDel*prefix, decimal);
+
 	temperature.setWildcard(temperatureBuffer);
 	temperature.resizeToCurrentText();
 	temperature.invalidate();
