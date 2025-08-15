@@ -8,8 +8,8 @@
           {
             "Type": "TextArea",
             "Name": "humidity",
-            "X": 158,
-            "Y": 33,
+            "X": 40,
+            "Y": 88,
             "Width": 35,
             "Height": 20,
             "TextId": "humidity",
@@ -44,14 +44,14 @@
             "Wildcard1": {
               "TextId": "temperatureVal",
               "UseBuffer": true,
-              "BufferSize": 10
+              "BufferSize": 15
             }
           },
           {
             "Type": "Button",
             "Name": "enableHumiditySensor",
             "X": 65,
-            "Y": 151,
+            "Y": 191,
             "Width": 110,
             "Height": 50,
             "Pressed": "__generated\\alternate_theme_images_widgets_button_regular_height_50_tiny_round_pressed.png",
@@ -128,7 +128,7 @@
             "Type": "TextArea",
             "Name": "enableSensorText",
             "X": 50,
-            "Y": 116,
+            "Y": 136,
             "Width": 140,
             "Height": 20,
             "TextId": "__SingleUse_BIA2",

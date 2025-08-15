@@ -1,3 +1,27 @@
+#ifndef SCREEN1VIEW_HPP
+#define SCREEN1VIEW_HPP
+
+#include <gui_generated/screen1_screen/Screen1ViewBase.hpp>
+#include <gui/screen1_screen/Screen1Presenter.hpp>
+class Screen1View : public Screen1ViewBase
+{
+public:
+	virtual void changeColor() override;
+	virtual void updateTemperature() override;
+	virtual void enableLockFunction() override;
+	virtual void readFromSensor() override;
+	virtual void setHumidity() override;
+    Screen1View();
+    virtual ~Screen1View() {}
+    virtual void setupScreen();
+    virtual void tearDownScreen();
+protected:
+};
+
+#endif // SCREEN1VIEW_HPP
+
+//---------------------------------------------------------------------------------
+
 
 #include <gui/screen1_screen/Screen1View.hpp>
 #include <touchgfx/widgets/canvas/Circle.hpp>
@@ -7,10 +31,10 @@
 #include "touchgfx/Unicode.hpp"
 #include "stm32h7xx_hal.h"
 #include "stdlib.h"
-int32_t temperatureInCelcius;
-int32_t humidityValue;
-volatile int32_t isLocked;
-volatile int32_t isEnabled;
+extern float temperatureInCelcius;
+extern float humidityValue;
+volatile extern int32_t isLocked;
+volatile extern int32_t isEnabled;
 Screen1View::Screen1View()
 {
 
@@ -46,10 +70,17 @@ void Screen1View::updateTemperature(){
 	if(!isEnabled){
 		return;
 	}
+	int zgornjiDel = floor(temperatureInCelcius);
+	if(temperatureInCelcius < 0){
+		temperatureInCelcius *= -1;
+	}
+	float spodnjiDelFloat = temperatureInCelcius - zgornjiDel;
+	spodnjiDelFloat = spodnjiDelFloat * 100;
+	int decimal = floor(spodnjiDelFloat);
 	if(temperatureInCelcius < 10 && temperatureInCelcius > 0){
-		Unicode::snprintf(temperatureBuffer, TEMPERATURE_SIZE, "%d", temperatureInCelcius);
+		Unicode::snprintf(temperatureBuffer, TEMPERATURE_SIZE, "%d.%d", zgornjiDel, decimal);
 	}else{
-		Unicode::snprintf(temperatureBuffer, TEMPERATURE_SIZE, "%d", temperatureInCelcius);
+		Unicode::snprintf(temperatureBuffer, TEMPERATURE_SIZE, "%d.%d", zgornjiDel, decimal);
 	}
 	temperature.setWildcard(temperatureBuffer);
 	temperature.resizeToCurrentText();
@@ -58,12 +89,12 @@ void Screen1View::updateTemperature(){
 }
 
 void Screen1View::setHumidity(){
-
+	int humidityInt = floor(humidityValue);
 	humidity.invalidateContent();
 	if(!isEnabled){
 		return;
 	}
-	Unicode::snprintf(humidityBuffer, HUMIDITY_SIZE, "%d", humidityValue);
+	Unicode::snprintf(humidityBuffer, HUMIDITY_SIZE, "%d", humidityInt);
 
 	humidity.setWildcard(humidityBuffer);
 	humidity.resizeToCurrentText();
@@ -89,6 +120,8 @@ void Screen1View::enableLockFunction(){
 void Screen1View::readFromSensor(){
 	isEnabled = !isEnabled;
 	if(!isEnabled){
+		temperature.invalidateContent();
+		humidity.invalidateContent();
 		Unicode::snprintf(temperatureBuffer, TEMPERATURE_SIZE, "????");
 		Unicode::snprintf(humidityBuffer, HUMIDITY_SIZE, "????");
 		temperature.setWildcard(temperatureBuffer);
@@ -102,4 +135,6 @@ void Screen1View::readFromSensor(){
 	updateTemperature();
 	setHumidity();
 }
+
+
 

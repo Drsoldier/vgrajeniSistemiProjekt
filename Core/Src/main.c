@@ -90,7 +90,10 @@ static void MX_JPEG_Init(void);
 static void MX_CRC_Init(void);
 void StartDefaultTask(void *argument);
 extern void TouchGFX_Task(void *argument);
-
+float temperatureInCelcius;
+float humidityValue;
+volatile int32_t isLocked;
+volatile int32_t isEnabled;
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -106,7 +109,10 @@ extern void TouchGFX_Task(void *argument);
   */
 int main(void)
 {
-
+	temperatureInCelcius = -1234689.75;
+		humidityValue = 0;
+		isEnabled = 1;
+		isLocked = 1;
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */

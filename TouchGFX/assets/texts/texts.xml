@@ -6,6 +6,9 @@
   <Texts>
     <TextGroup Id="Group1" />
     <TextGroup Id="Unsorted">
+      <Text Id="ResourceId1" Alignment="Left" TypographyId="Default">
+        <Translation Language="GB">-0123456789.</Translation>
+      </Text>
       <Text Id="__SingleUse_BIA2" Alignment="Left" TypographyId="Default">
         <Translation Language="GB">Enable sensor</Translation>
       </Text>
