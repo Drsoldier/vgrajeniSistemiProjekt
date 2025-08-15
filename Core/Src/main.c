@@ -90,7 +90,7 @@ static void MX_JPEG_Init(void);
 static void MX_CRC_Init(void);
 void StartDefaultTask(void *argument);
 extern void TouchGFX_Task(void *argument);
-int32_t tempC;
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -104,12 +104,9 @@ int32_t tempC;
   * @brief  The application entry point.
   * @retval int
   */
-
-
 int main(void)
 {
-	tempC = *((int*)malloc(1));
-	tempC = 6;
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -571,6 +568,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(LCD_DE_GPIO_Port, LCD_DE_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOI, GPIO_PIN_8, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(VSYNC_FREQ_GPIO_Port, VSYNC_FREQ_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
@@ -592,6 +592,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LCD_DE_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PI8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOI, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PA8 */
   GPIO_InitStruct.Pin = GPIO_PIN_8;
@@ -647,7 +654,6 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	tempC = 7;
     osDelay(100);
   }
   /* USER CODE END 5 */

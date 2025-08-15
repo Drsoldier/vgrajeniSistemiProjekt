@@ -8,6 +8,9 @@ class Screen1View : public Screen1ViewBase
 public:
 	virtual void changeColor() override;
 	virtual void updateTemperature() override;
+	virtual void enableLockFunction() override;
+	virtual void readFromSensor() override;
+	virtual void setHumidity() override;
     Screen1View();
     virtual ~Screen1View() {}
     virtual void setupScreen();
