@@ -109,9 +109,11 @@ float temperatureInCelcius;
 float humidityValue;
 volatile int32_t isLocked;
 volatile int32_t isEnabled;
+DHT_DataTypedef* sensorDataValues;
 
 int main(void)
 {
+	sensorDataValues = (DHT_DataTypedef*)calloc(1, sizeof(DHT_DataTypedef));
 	temperatureInCelcius = -1234689.75;
 	humidityValue = 0;
 	isEnabled = 1;
@@ -640,14 +642,14 @@ void lockTask(void *argument){
 
 void readSensorTask(void *argument){
 	while(1){
-		/*osKernelLock();
+		osKernelLock();
 			if(DHT11_ReadData(sensorDataValues)){
 			}else{
 				temperatureInCelcius = sensorDataValues->Temperature;
 				humidityValue = sensorDataValues->Humidity;
 
 			}
-		osKernelUnlock();*/
+		osKernelUnlock();
 		osDelay(100);
 	}
 

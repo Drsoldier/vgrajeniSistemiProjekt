@@ -12,8 +12,8 @@
 
 
 // change/define as necessary
-#define DHT_PORT GPIOE
-#define DHT_PIN GPIO_PIN_3
+#define DHT_PORT GPIOI
+#define DHT_PIN GPIO_PIN_8
 
 
 static inline void Set_DHT_Pin_Output (GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
