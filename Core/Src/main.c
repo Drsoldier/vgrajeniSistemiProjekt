@@ -27,6 +27,8 @@
 /* USER CODE BEGIN Includes */
 #include "stm32h750b_discovery_qspi.h"
 #include "stm32h750b_discovery_sdram.h"
+#include "DWT.h"
+#include "DHT11.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -73,9 +75,20 @@ const osThreadAttr_t GUITask_attributes = {
   .stack_size = 8192 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* USER CODE BEGIN PV */
 
-/* USER CODE END PV */
+osThreadId_t lockTaskHandle ;
+const osThreadAttr_t lockTask_attributes = {
+  .name = "Lock task",
+  .stack_size = 8192 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
+
+osThreadId_t readSensorHandle;
+const osThreadAttr_t readSensorTask_attributes = {
+  .name = "Read sensor",
+  .stack_size = 8192 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -90,62 +103,34 @@ static void MX_JPEG_Init(void);
 static void MX_CRC_Init(void);
 void StartDefaultTask(void *argument);
 extern void TouchGFX_Task(void *argument);
+void lockTask(void *argument);
+void readSensorTask(void *argument);
 float temperatureInCelcius;
 float humidityValue;
 volatile int32_t isLocked;
 volatile int32_t isEnabled;
-/* USER CODE BEGIN PFP */
 
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
 	temperatureInCelcius = -1234689.75;
 	humidityValue = 0;
 	isEnabled = 1;
 	isLocked = 1;
-  /* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
-
-  /* MPU Configuration--------------------------------------------------------*/
   MPU_Config();
-
-  /* Enable the CPU Cache */
-
-  /* Enable I-Cache---------------------------------------------------------*/
   SCB_EnableICache();
 
-  /* Enable D-Cache---------------------------------------------------------*/
   SCB_EnableDCache();
 
-  /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
 
-  /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
-  /* Explicit enabling interrupt to support debugging in STM32CubeIDE when using external flash loader */
   __enable_irq();
-  /* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_MDMA_Init();
   MX_LTDC_Init();
@@ -164,38 +149,14 @@ int main(void)
   /* Init scheduler */
   osKernelInitialize();
 
-  /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
 
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
-
-  /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
-
-  /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
-
-  /* Create the thread(s) */
-  /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of GUITask */
   GUITaskHandle = osThreadNew(TouchGFX_Task, NULL, &GUITask_attributes);
 
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
-  /* USER CODE END RTOS_THREADS */
-
-  /* USER CODE BEGIN RTOS_EVENTS */
-  /* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
-
-  /* Start scheduler */
+  lockTaskHandle = osThreadNew(lockTask, NULL, &lockTask_attributes);
+  readSensorHandle = osThreadNew(readSensorTask, NULL, &readSensorTask_attributes);
   osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
@@ -664,6 +625,34 @@ void StartDefaultTask(void *argument)
   }
   /* USER CODE END 5 */
 }
+
+
+void lockTask(void *argument){
+	while(1){
+		if(isLocked){
+			HAL_GPIO_WritePin(GPIOI, GPIO_PIN_8, GPIO_PIN_SET);
+		}else{
+			HAL_GPIO_WritePin(GPIOI, GPIO_PIN_8, GPIO_PIN_RESET);
+		}
+		osDelay(100);
+	}
+}
+
+void readSensorTask(void *argument){
+	while(1){
+		/*osKernelLock();
+			if(DHT11_ReadData(sensorDataValues)){
+			}else{
+				temperatureInCelcius = sensorDataValues->Temperature;
+				humidityValue = sensorDataValues->Humidity;
+
+			}
+		osKernelUnlock();*/
+		osDelay(100);
+	}
+
+}
+
 
  /* MPU Configuration */
 
