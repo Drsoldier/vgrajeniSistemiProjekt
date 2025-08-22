@@ -689,7 +689,8 @@ static void startDaTimer()
 {
 
   /* USER CODE BEGIN TIM1_Init 0 */
-
+	// imam 1 MHz clock zdaj
+	// da dobim
   /* USER CODE END TIM1_Init 0 */
   __HAL_RCC_TIM1_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -702,7 +703,10 @@ static void startDaTimer()
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 119;
+  // 120MHz / ((120-1)+1) => 1 MHz
+  htim1.Init.Prescaler = 120-1;
+
+  // 1 000 000 Hz / 50 Hz = 20000
   htim1.Init.Period = 20000-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   //htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -728,8 +732,11 @@ static void startDaTimer()
   {
     Error_Handler();
   }*/
+
+
+
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 1;
+  sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   //sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   //sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
