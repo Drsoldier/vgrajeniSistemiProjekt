@@ -661,13 +661,23 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void lockTask(void *argument){
+	int prev = isLocked;
 	while(1){
-		if(isLocked){
+
+		if(isLocked && !prev){
 			HAL_GPIO_WritePin(GPIOI, GPIO_PIN_8, GPIO_PIN_SET);
-		}else{
+			TIM1->CCR1 = 2000;
+
+
+		}else if (!isLocked && prev){
+			TIM1->CCR1 = 1500;
 			HAL_GPIO_WritePin(GPIOI, GPIO_PIN_8, GPIO_PIN_RESET);
 		}
+		prev = isLocked;
 		osDelay(100);
+		TIM1->CCR1 = 0;
+
+
 	}
 }
 
