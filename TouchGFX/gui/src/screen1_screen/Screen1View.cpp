@@ -53,21 +53,50 @@ void Screen1View::tearDownScreen()
 volatile int a = 1;
 
 void Screen1View::changeColor(){
-	temperature.invalidateContent();
+	int prefix = 1;
+		if(temperatureInCelcius < 0){
+			prefix = -1;
+		}else{
+			prefix = 1;
+		}
+	int zgornjiDel = floor(temperatureInCelcius*prefix);
 
-	if(a>0){
-		howHotItIsPainter.setColor(touchgfx::Color::getColorFromRGB(255, 0, 0));
+	int modra, zelena, rdeca;
+	modra = -5 * zgornjiDel + 75;
+	if(zgornjiDel <= 25){
+		zelena = 25*(zgornjiDel - 10);
 	}else{
-		howHotItIsPainter.setColor(touchgfx::Color::getColorFromRGB(0, 255, 0));
+		zelena = -25*(zgornjiDel - 30);
 	}
-	a = -a;
-	temperature.resizeToCurrentText();
+	rdeca = 17 * zgornjiDel - 425;
+
+
+	if(zelena < 0)
+		zelena = 0;
+	if (rdeca < 0)
+		rdeca = 0;
+	if (modra < 0)
+		modra = 0;
+
+	if(zelena > 255)
+		zelena = 255;
+	if(rdeca > 255)
+		rdeca = 255;
+	if(modra > 255)
+		modra = 255;
+
+	howHotItIsPainter.setColor(touchgfx::Color::getColorFromRGB(rdeca, zelena, modra));
+
 	howHotItIs.invalidate();
 }
 
 void Screen1View::updateTemperature(){
 	temperature.invalidateContent();
 	if(!isEnabled){
+		Unicode::snprintf(temperatureBuffer, TEMPERATURE_SIZE, "????");
+		temperature.setWildcard(temperatureBuffer);
+		temperature.resizeToCurrentText();
+		temperature.invalidate();
 		return;
 	}
 	int prefix = 1;
@@ -90,6 +119,10 @@ void Screen1View::setHumidity(){
 	int humidityInt = floor(humidityValue);
 	humidity.invalidateContent();
 	if(!isEnabled){
+		Unicode::snprintf(humidityBuffer, HUMIDITY_SIZE, "????");
+		humidity.setWildcard(humidityBuffer);
+		humidity.resizeToCurrentText();
+		humidity.invalidate();
 		return;
 	}
 	Unicode::snprintf(humidityBuffer, HUMIDITY_SIZE, "%d", humidityInt);

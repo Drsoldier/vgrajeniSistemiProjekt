@@ -575,6 +575,7 @@ static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   /* USER CODE BEGIN MX_GPIO_Init_1 */
+
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
@@ -656,6 +657,12 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
+  /*Configure GPIO pin : PE8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
   /* USER CODE END MX_GPIO_Init_2 */
 }
 
@@ -663,15 +670,19 @@ static void MX_GPIO_Init(void)
 void lockTask(void *argument){
 	int prev = isLocked;
 	while(1){
-
+		if(isLocked){
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_6, GPIO_PIN_SET);
+		}else{
+			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_6, GPIO_PIN_RESET);
+		}
 		if(isLocked && !prev){
-			HAL_GPIO_WritePin(GPIOI, GPIO_PIN_8, GPIO_PIN_SET);
+			//HAL_GPIO_WritePin(GPIOI, GPIO_PIN_8, GPIO_PIN_SET);
 			TIM1->CCR1 = 2000;
 
 
 		}else if (!isLocked && prev){
 			TIM1->CCR1 = 1500;
-			HAL_GPIO_WritePin(GPIOI, GPIO_PIN_8, GPIO_PIN_RESET);
+			//HAL_GPIO_WritePin(GPIOI, GPIO_PIN_8, GPIO_PIN_RESET);
 		}
 		prev = isLocked;
 		osDelay(100);
@@ -683,14 +694,16 @@ void lockTask(void *argument){
 
 void readSensorTask(void *argument){
 	while(1){
-		osKernelLock();
-			if(DHT11_ReadData(sensorDataValues)){
-			}else{
-				temperatureInCelcius = sensorDataValues->Temperature;
-				humidityValue = sensorDataValues->Humidity;
+		if(isEnabled){
+			osKernelLock();
+				if(DHT11_ReadData(sensorDataValues)){
+				}else{
+					temperatureInCelcius = sensorDataValues->Temperature;
+					humidityValue = sensorDataValues->Humidity;
 
-			}
-		osKernelUnlock();
+				}
+			osKernelUnlock();
+		}
 		osDelay(100);
 	}
 
@@ -699,8 +712,6 @@ static void startDaTimer()
 {
 
   /* USER CODE BEGIN TIM1_Init 0 */
-	// imam 1 MHz clock zdaj
-	// da dobim
   /* USER CODE END TIM1_Init 0 */
   __HAL_RCC_TIM1_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -719,9 +730,7 @@ static void startDaTimer()
   // 1 000 000 Hz / 50 Hz = 20000
   htim1.Init.Period = 20000-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  //htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  //htim1.Init.RepetitionCounter = 0;
-  //htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+
   if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
   {
     Error_Handler();
@@ -735,49 +744,18 @@ static void startDaTimer()
   {
     Error_Handler();
   }
-  /*sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }*/
-
 
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
   sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  //sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
-  //sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  //sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
-  //sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
   }
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
-  /*sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-  sBreakDeadTimeConfig.DeadTime = 0;
-  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-  sBreakDeadTimeConfig.BreakFilter = 0;
-  sBreakDeadTimeConfig.Break2State = TIM_BREAK2_DISABLE;
-  sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
-  sBreakDeadTimeConfig.Break2Filter = 0;
-  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-  if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }*/
-  /* USER CODE BEGIN TIM1_Init 2 */
-
-
-
-/* USER CODE BEGIN TIM1_MspPostInit 0 */
 	  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
     /* USER CODE END TIM1_MspPostInit 0 */
@@ -793,9 +771,6 @@ static void startDaTimer()
     GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /* USER CODE BEGIN TIM1_MspPostInit 1 */
-
-    /* USER CODE END TIM1_MspPostInit 1 */
   }
 
 /* USER CODE END 4 */
